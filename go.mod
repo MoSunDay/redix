@@ -1,9 +1,13 @@
-module github.com/alash3al/redix
+module github.com/MoSunDay/redix
+
+go 1.15
 
 require (
 	github.com/AndreasBriese/bbloom v0.0.0-20180913140656-343706a395b7 // indirect
-	github.com/alash3al/go-color v1.7.0
-	github.com/alash3al/go-pubsub v0.0.0-20181220233502-636a19c01258
+	github.com/MoSunDay/go-color v1.7.0
+	github.com/MoSunDay/redcon v1.2.1
+	github.com/MoSunDay/go-color v1.7.0
+	github.com/MoSunDay/go-pubsub v0.0.0-20181220233502-636a19c01258
 	github.com/bwmarrin/snowflake v0.0.0-20180412010544-68117e6bbede
 	github.com/dgraph-io/badger v1.5.5-0.20181221193704-accd59b14998
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
@@ -12,6 +16,9 @@ require (
 	github.com/golang/protobuf v1.2.0 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/gorilla/websocket v1.4.0
+	github.com/hashicorp/go-hclog v0.9.1
+	github.com/hashicorp/raft v1.3.1
+	github.com/hashicorp/raft-boltdb v0.0.0-20210422161416-485fa74b0b01
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/labstack/echo v3.3.5+incompatible

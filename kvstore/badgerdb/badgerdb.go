@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alash3al/redix/kvstore"
+	"github.com/MoSunDay/redix/kvstore"
 	"github.com/dgraph-io/badger"
 	"github.com/dgraph-io/badger/options"
 )

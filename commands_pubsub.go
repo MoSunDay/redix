@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/alash3al/go-pubsub"
+	"github.com/MoSunDay/go-pubsub"
 	"github.com/tidwall/redcon"
 	"gopkg.in/resty.v1"
 )

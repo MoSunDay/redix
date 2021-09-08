@@ -9,12 +9,12 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/alash3al/go-pubsub"
+	"github.com/MoSunDay/go-pubsub"
 	"github.com/bwmarrin/snowflake"
 )
 
 var (
-	flagRESPListenAddr = flag.String("resp-addr", ":6380", "the address of resp server")
+	flagRESPListenAddr = flag.String("resp-addr", ":6666", "the address of resp server")
 	flagHTTPListenAddr = flag.String("http-addr", ":7090", "the address of the http server")
 	flagStorageDir     = flag.String("storage", "./redix-data", "the storage directory")
 	flagEngine         = flag.String("engine", "leveldb", "the storage engine to be used")
@@ -100,6 +100,7 @@ var (
 		"echo":     echoCommand,
 		"flushdb":  flushdbCommand,
 		"flushall": flushallCommand,
+		"cluster":  clusterCommand,
 
 		// ratelimit
 		"ratelimitset":  ratelimitsetCommand,

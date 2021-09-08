@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/alash3al/redix/kvstore"
+	"github.com/MoSunDay/redix/kvstore"
 )
 
 // setCommand - SET <key> <value> [<TTL "millisecond">]
@@ -46,6 +46,9 @@ func setCommand(c Context) {
 
 // getCommand - GET <key> [<default value>]
 func getCommand(c Context) {
+	c.WriteError("MOVED 3999 127.0.0.1:6381")
+
+	return
 	if len(c.args) < 1 {
 		c.WriteError("GET command must have at least 1 argument: GET <key> [default value]")
 		return

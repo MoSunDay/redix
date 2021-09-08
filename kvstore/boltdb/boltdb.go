@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alash3al/redix/kvstore"
+	"github.com/MoSunDay/redix/kvstore"
 	bbolt "go.etcd.io/bbolt"
 )
 

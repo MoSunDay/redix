@@ -12,8 +12,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/alash3al/go-color"
-	"github.com/alash3al/go-pubsub"
+	"github.com/MoSunDay/go-color"
+	"github.com/MoSunDay/go-pubsub"
 	"github.com/bwmarrin/snowflake"
 	"github.com/dgraph-io/badger"
 	"github.com/sirupsen/logrus"

@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alash3al/redix/kvstore"
+	"github.com/MoSunDay/redix/kvstore"
 )
 
 // lpushCommand - LPUSH <LIST> <val1> [<val2> ...]

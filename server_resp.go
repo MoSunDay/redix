@@ -8,8 +8,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/alash3al/go-color"
-	"github.com/tidwall/redcon"
+	"github.com/MoSunDay/go-color"
+	"github.com/MoSunDay/redcon"
 )
 
 func initRespServer() error {
@@ -23,9 +23,6 @@ func initRespServer() error {
 				}
 			})()
 
-			// fetch the connection context
-			// normalize the todo action "command"
-			// normalize the command arguments
 			ctx := (conn.Context()).(map[string]interface{})
 			todo := strings.TrimSpace(strings.ToLower(string(cmd.Args[0])))
 			args := []string{}
@@ -34,28 +31,14 @@ func initRespServer() error {
 				args = append(args, v)
 			}
 
-			// verbose ?
 			if *flagVerbose {
 				log.Println(color.YellowString(todo), color.CyanString(strings.Join(args, " ")))
 			}
 
-			// internal command to pick a database
-			if todo == "select" {
-				if len(args) < 1 {
-					args = append(args, "0")
-				}
-				ctx["db"] = args[0]
-				conn.SetContext(ctx)
-				conn.WriteString("OK")
-				return
-			}
-
-			// set the default db if there is no db selected
 			if ctx["db"] == nil || ctx["db"].(string) == "" {
 				ctx["db"] = "0"
 			}
 
-			// initialize the selected db
 			db, err := selectDB(ctx["db"].(string))
 			if err != nil {
 				conn.WriteError(fmt.Sprintf("db error: %s", err.Error()))

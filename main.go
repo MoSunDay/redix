@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/alash3al/go-color"
+	"github.com/MoSunDay/go-color"
+	_ "github.com/MoSunDay/redix/rcache"
 )
 
 func main() {

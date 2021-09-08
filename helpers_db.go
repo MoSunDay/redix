@@ -10,11 +10,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/alash3al/redix/kvstore"
-	"github.com/alash3al/redix/kvstore/badgerdb"
-	"github.com/alash3al/redix/kvstore/boltdb"
-	"github.com/alash3al/redix/kvstore/leveldb"
-	"github.com/alash3al/redix/kvstore/null"
+	"github.com/MoSunDay/redix/kvstore"
+	"github.com/MoSunDay/redix/kvstore/badgerdb"
+	"github.com/MoSunDay/redix/kvstore/boltdb"
+	"github.com/MoSunDay/redix/kvstore/leveldb"
+	"github.com/MoSunDay/redix/kvstore/null"
 )
 
 // selectDB - load/fetches the requested db

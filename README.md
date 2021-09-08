@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-      <a style="display: inline-block" align="center" href="https://travis-ci.com/alash3al/redix"><img alt="Build Status" src="https://travis-ci.com/alash3al/redix.svg?branch=master" /></a>
-      <a style="display: inline-block" align="center" href="https://github.com/alash3al/redix/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/hexpm/l/plug.svg" /></a>
-      <a style="display: inline-block" align="center" href="https://cloud.docker.com/u/alash3al/repository/docker/alash3al/redix"><img alt="Docker" src="https://img.shields.io/docker/pulls/alash3al/redix.svg" /></a>
-      <a style="display: inline-block" align="center" href="https://github.com/alash3al/redix/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/alash3al/redix.svg" /></a>
+      <a style="display: inline-block" align="center" href="https://travis-ci.com/MoSunDay/redix"><img alt="Build Status" src="https://travis-ci.com/MoSunDay/redix.svg?branch=master" /></a>
+      <a style="display: inline-block" align="center" href="https://github.com/MoSunDay/redix/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/hexpm/l/plug.svg" /></a>
+      <a style="display: inline-block" align="center" href="https://cloud.docker.com/u/MoSunDay/repository/docker/MoSunDay/redix"><img alt="Docker" src="https://img.shields.io/docker/pulls/MoSunDay/redix.svg" /></a>
+      <a style="display: inline-block" align="center" href="https://github.com/MoSunDay/redix/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/MoSunDay/redix.svg" /></a>
 </p>
 
 <blockquote align="center">
@@ -32,15 +32,15 @@ Why
 Install
 =======
 - Using Homebrew:
-  - Add Homebrew Tap `brew tap alash3al/redix https://github.com/alash3al/redix`
-  - Install Redix `brew install alash3al/redix/redix`
-- From Binaries: go [there](https://github.com/alash3al/redix/releases) and choose your platform based binary, then download and execute from the command line with `-h` flag to see the help text.
-- Using Docker: `docker run -P -v /path/to/redix-data:/root/redix-data alash3al/redix`
-- From Source: `go get github.com/alash3al/redix`.
+  - Add Homebrew Tap `brew tap MoSunDay/redix https://github.com/MoSunDay/redix`
+  - Install Redix `brew install MoSunDay/redix/redix`
+- From Binaries: go [there](https://github.com/MoSunDay/redix/releases) and choose your platform based binary, then download and execute from the command line with `-h` flag to see the help text.
+- Using Docker: `docker run -P -v /path/to/redix-data:/root/redix-data MoSunDay/redix`
+- From Source: `go get github.com/MoSunDay/redix`.
 
 Configurations
 ============
-> It is so easy to configure `Redix`, there is no configuration files, it is all about running `./redix` after you download it from the [releases](https://github.com/alash3al/redix/releases), if you downloaded i.e 'redix_linux_amd64' and unziped it.
+> It is so easy to configure `Redix`, there is no configuration files, it is all about running `./redix` after you download it from the [releases](https://github.com/MoSunDay/redix/releases), if you downloaded i.e 'redix_linux_amd64' and unziped it.
 
 ```bash
 $ ./redix_linux_amd64 -h

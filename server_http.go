@@ -6,7 +6,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/alash3al/go-pubsub"
+	"github.com/MoSunDay/go-pubsub"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
