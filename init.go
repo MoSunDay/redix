@@ -15,7 +15,6 @@ import (
 	"github.com/MoSunDay/go-color"
 	"github.com/MoSunDay/go-pubsub"
 	"github.com/bwmarrin/snowflake"
-	"github.com/dgraph-io/badger"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,7 +26,6 @@ func init() {
 	if !*flagVerbose {
 		logger := logrus.New()
 		logger.SetOutput(ioutil.Discard)
-		badger.SetLogger(logger)
 	}
 
 	if !supportedEngines[*flagEngine] {

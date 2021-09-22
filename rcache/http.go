@@ -35,6 +35,7 @@ func NewHttpServer(ctx *CachedContext, log *log.Logger) *HttpServer {
 	Mux.HandleFunc("/set", s.doSet)
 	Mux.HandleFunc("/get", s.doGet)
 	Mux.HandleFunc("/join", s.doJoin)
+	Mux.HandleFunc("/id", s.doGetID)
 	return s
 }
 
@@ -115,4 +116,9 @@ func (h *HttpServer) doJoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprint(w, "ok")
+}
+
+// doJoin handles joining cluster request
+func (h *HttpServer) doGetID(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, h.Ctx.Cache.Raft.Raft.GetConfiguration())
 }

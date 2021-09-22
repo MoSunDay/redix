@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/MoSunDay/go-pubsub"
-	"github.com/tidwall/redcon"
+	"github.com/MoSunDay/redcon"
 	"gopkg.in/resty.v1"
 )
 

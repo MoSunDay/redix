@@ -4,8 +4,8 @@
 package main
 
 import (
+	"github.com/MoSunDay/redcon"
 	"github.com/MoSunDay/redix/kvstore"
-	"github.com/tidwall/redcon"
 )
 
 // CommandHandler - represents a handler for a command

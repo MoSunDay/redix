@@ -67,20 +67,33 @@ func initRespServer() error {
 				return
 			}
 
-			// find the required command in our registry
-			fn := commands[todo]
-			if nil == fn {
-				conn.WriteError(fmt.Sprintf("unknown commands [%s]", todo))
+			for _, commands := range h_commands {
+				fn := commands[todo]
+				slot := crc16sum(args[0]) % 16384
+				fmt.Println(slot)
+				if nil == fn {
+					continue
+				}
+				fn(Context{
+					Conn:   conn,
+					action: todo,
+					args:   args,
+					db:     db,
+				})
 				return
 			}
 
-			// dispatch the command and catch its errors
-			fn(Context{
-				Conn:   conn,
-				action: todo,
-				args:   args,
-				db:     db,
-			})
+			fn := p_commands[todo]
+			if fn != nil {
+				fn(Context{
+					Conn:   conn,
+					action: todo,
+					args:   args,
+					db:     db,
+				})
+				return
+			}
+			conn.WriteError(fmt.Sprintf("unknown commands [%s]", todo))
 		},
 		func(conn redcon.Conn) bool {
 			conn.SetContext(map[string]interface{}{})

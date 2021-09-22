@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	"github.com/MoSunDay/redix/kvstore"
-	"github.com/MoSunDay/redix/kvstore/badgerdb"
 	"github.com/MoSunDay/redix/kvstore/boltdb"
 	"github.com/MoSunDay/redix/kvstore/leveldb"
 	"github.com/MoSunDay/redix/kvstore/null"
@@ -41,8 +40,6 @@ func openDB(n string) (kvstore.DB, error) {
 	switch strings.ToLower(engine) {
 	default:
 		return nil, errors.New("unsupported engine: " + engine)
-	case "badgerdb", "badger":
-		return badgerdb.OpenBadger(filepath.Join(dbpath, "badger", n))
 	case "boltdb":
 		return boltdb.OpenBolt(filepath.Join(dbpath, "bolt", n))
 	case "leveldb":
