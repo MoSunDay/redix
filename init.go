@@ -23,6 +23,8 @@ func init() {
 
 	runtime.GOMAXPROCS(*flagWorkers)
 
+	*flagStorageDir = *flagStorageDir + "/" + *flagRaftNode
+
 	if !*flagVerbose {
 		logger := logrus.New()
 		logger.SetOutput(ioutil.Discard)

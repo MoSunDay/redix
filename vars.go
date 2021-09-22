@@ -14,14 +14,20 @@ import (
 )
 
 var (
-	flagRESPListenAddr = flag.String("resp-addr", ":6666", "the address of resp server")
-	flagHTTPListenAddr = flag.String("http-addr", ":7090", "the address of the http server")
-	flagStorageDir     = flag.String("storage", "./redix-data", "the storage directory")
-	flagEngine         = flag.String("engine", "leveldb", "the storage engine to be used")
-	flagEngineOptions  = flag.String("engine-options", "", "options related to used engine in the url query format, i.e (opt1=val2&opt2=val2)")
-	flagWorkers        = flag.Int("workers", runtime.NumCPU(), "the default workers number")
-	flagVerbose        = flag.Bool("verbose", false, "verbose or not")
-	flagACK            = flag.Bool("ack", true, "acknowledge write or return immediately")
+	flagRESPListenAddr  = flag.String("resp-addr", ":6666", "the address of resp server")
+	flagHTTPListenAddr  = flag.String("http-addr", ":7090", "the address of the http server")
+	flagStorageDir      = flag.String("data-storage", "./redix-data", "the data storage directory")
+	flagEngine          = flag.String("engine", "leveldb", "the storage engine to be used")
+	flagEngineOptions   = flag.String("engine-options", "", "options related to used engine in the url query format, i.e (opt1=val2&opt2=val2)")
+	flagWorkers         = flag.Int("workers", runtime.NumCPU(), "the default workers number")
+	flagVerbose         = flag.Bool("verbose", false, "verbose or not")
+	flagACK             = flag.Bool("ack", true, "acknowledge write or return immediately")
+	flagHttpAddress     = flag.String("raft-http", "127.0.0.1:6000", "Http address")
+	flagRaftTCPAddress  = flag.String("raft", "127.0.0.1:7000", "raft tcp address")
+	flagRaftNode        = flag.String("node", "node1", "raft node name")
+	flagRaftBootstrap   = flag.Bool("bootstrap", false, "start as raft cluster")
+	flagRaftJoinAddress = flag.String("join", "", "join address for raft cluster")
+	flageRaftDataDir    = flag.String("raft-storage", "./raft-data", "the raft storage directory")
 )
 
 var (
@@ -66,7 +72,6 @@ var (
 		"exists": existsCommand,
 		"incr":   incrCommand,
 		"ttl":    ttlCommand,
-		"keys":   keysCommand,
 
 		// lists
 		"lpush":      lpushCommand,
@@ -101,6 +106,8 @@ var (
 
 	p_commands = map[string]CommandHandler{
 		// utils
+		"keys": keysCommand,
+
 		"encode":   encodeCommand,
 		"uuidv4":   uuid4Command,
 		"uniqid":   uniqidCommand,
@@ -126,11 +133,10 @@ var (
 
 var (
 	supportedEngines = map[string]bool{
-		"badgerdb": true,
-		"boltdb":   true,
-		"leveldb":  true,
-		"null":     true,
-		"sqlite":   true,
+		"boltdb":  true,
+		"leveldb": true,
+		"null":    true,
+		"sqlite":  true,
 	}
 	engineOptions         = url.Values{}
 	defaultPubSubAllTopic = "*"
@@ -179,7 +185,7 @@ func crc16sum(key string) (crc uint16) {
 }
 
 const (
-	redixVersion = "1.10"
+	redixVersion = "2.00-dev"
 	redixBrand   = `
 
 		 _______  _______  ______  _________         

@@ -120,5 +120,6 @@ func (h *HttpServer) doJoin(w http.ResponseWriter, r *http.Request) {
 
 // doJoin handles joining cluster request
 func (h *HttpServer) doGetID(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, h.Ctx.Cache.Raft.Raft.GetConfiguration())
+	fmt.Fprintf(w, "111\n")
+	fmt.Fprintf(w, "%+v\n", h.Ctx.Cache.Raft.Raft.GetConfiguration())
 }

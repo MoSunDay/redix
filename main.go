@@ -29,6 +29,10 @@ func main() {
 		err <- initHTTPServer()
 	})()
 
+	go (func() {
+		initRaftServer()
+	})()
+
 	if err := <-err; err != nil {
 		color.Red(err.Error())
 	}

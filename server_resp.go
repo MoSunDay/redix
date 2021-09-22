@@ -69,11 +69,39 @@ func initRespServer() error {
 
 			for _, commands := range h_commands {
 				fn := commands[todo]
-				slot := crc16sum(args[0]) % 16384
-				fmt.Println(slot)
 				if nil == fn {
 					continue
 				}
+
+				slot := crc16sum(args[0]) % 16384
+
+				if *flagRaftNode == "node1" {
+					if slot <= 5461 {
+					} else if slot >= 10923 {
+						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6668", slot))
+					} else {
+						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6667", slot))
+					}
+				}
+
+				if *flagRaftNode == "node2" {
+					if slot >= 5462 || slot <= 10922 {
+					} else if slot >= 10923 {
+						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6668", slot))
+					} else {
+						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6666", slot))
+					}
+				}
+
+				if *flagRaftNode == "node3" {
+					if slot >= 10923 || slot <= 16383 {
+					} else if slot <= 5461 {
+						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6666", slot))
+					} else {
+						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6667", slot))
+					}
+				}
+
 				fn(Context{
 					Conn:   conn,
 					action: todo,
