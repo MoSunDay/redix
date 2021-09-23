@@ -18,13 +18,13 @@ import (
 
 // selectDB - load/fetches the requested db
 func selectDB(n string) (db kvstore.DB, err error) {
-	dbi, found := databases.Load(n)
+	dbi, found := databases.Load("0")
 	if !found {
-		db, err = openDB(n)
+		db, err = openDB("0")
 		if err != nil {
 			return nil, err
 		}
-		databases.Store(n, db)
+		databases.Store("0", db)
 	} else {
 		db, _ = dbi.(kvstore.DB)
 	}

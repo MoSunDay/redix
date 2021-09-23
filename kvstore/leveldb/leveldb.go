@@ -16,7 +16,9 @@ import (
 
 	"github.com/MoSunDay/redix/kvstore"
 	"github.com/syndtr/goleveldb/leveldb"
+	"github.com/syndtr/goleveldb/leveldb/filter"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
+	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
 
@@ -28,7 +30,7 @@ type LevelDB struct {
 
 // OpenLevelDB - Opens the specified path
 func OpenLevelDB(path string) (*LevelDB, error) {
-	db, err := leveldb.OpenFile(path, nil)
+	db, err := leveldb.OpenFile(path, &opt.Options{Filter: filter.NewBloomFilter(1000)})
 
 	if err != nil {
 		return nil, err

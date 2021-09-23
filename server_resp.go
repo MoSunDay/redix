@@ -6,6 +6,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/MoSunDay/go-color"
@@ -23,7 +24,6 @@ func initRespServer() error {
 				}
 			})()
 
-			ctx := (conn.Context()).(map[string]interface{})
 			todo := strings.TrimSpace(strings.ToLower(string(cmd.Args[0])))
 			args := []string{}
 			for _, v := range cmd.Args[1:] {
@@ -35,11 +35,7 @@ func initRespServer() error {
 				log.Println(color.YellowString(todo), color.CyanString(strings.Join(args, " ")))
 			}
 
-			if ctx["db"] == nil || ctx["db"].(string) == "" {
-				ctx["db"] = "0"
-			}
-
-			db, err := selectDB(ctx["db"].(string))
+			db, err := selectDB("0")
 			if err != nil {
 				conn.WriteError(fmt.Sprintf("db error: %s", err.Error()))
 				return
@@ -48,7 +44,6 @@ func initRespServer() error {
 			// our internal change log
 			if changelog.Subscribers(defaultPubSubAllTopic) > 0 {
 				changelog.Broadcast(Change{
-					Namespace: ctx["db"].(string),
 					Command:   todo,
 					Arguments: args,
 				}, defaultPubSubAllTopic)
@@ -73,10 +68,10 @@ func initRespServer() error {
 
 				slot := hash.GetSlotNumber(args[0])
 				address := SlotCache.CM.Get("0")
-				if address != SlotCache.Opts.RaftTCPAddress {
+				if address != *flagRESPListenAddr {
 					conn.WriteError(fmt.Sprintf("MOVED %d %s", slot, address))
 				}
-
+				args[0] = strconv.Itoa(int(slot)) + "/" + args[0]
 				fn(Context{
 					Conn:   conn,
 					action: todo,

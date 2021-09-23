@@ -6,8 +6,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
 
 	rcache "github.com/MoSunDay/redix/rcache"
 )
@@ -51,21 +49,6 @@ func runRatfServer() {
 				if leader {
 					SlotCache.Log.Println("become leader, enable write api")
 					SlotCache.HttpServer.SetWriteFlag(true)
-					if SlotCache.CM.Get("0") == "" {
-						for i := 0; i <= 16383; i++ {
-							addr := SlotCache.Opts.RaftTCPAddress
-							addrSlice := strings.Split(addr, ":")
-							portStr := addrSlice[1]
-							port, err := strconv.Atoi(portStr)
-							if err != nil {
-								SlotCache.Log.Fatal("cluster slots verification failed")
-							}
-							portStr = strconv.Itoa(port + 200)
-							addr = addrSlice[0] + ":" + portStr
-							SlotCache.CM.Set(strconv.Itoa(i), addr)
-						}
-						SlotCache.Log.Println("slots init done")
-					}
 				} else {
 					SlotCache.Log.Println("become follower, close write api")
 					SlotCache.HttpServer.SetWriteFlag(false)

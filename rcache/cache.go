@@ -3,39 +3,48 @@ package rcache
 import (
 	"encoding/json"
 	"io"
-	"sync"
+	"log"
+
+	cmap "github.com/MoSunDay/concurrent-map"
 )
 
 type cacheManager struct {
-	data map[string]string
-	sync.RWMutex
+	data *cmap.ConcurrentMap
 }
 
 func NewCacheManager() *cacheManager {
 	cm := &cacheManager{}
-	cm.data = make(map[string]string)
+	cm.data = cmap.New(128)
 	return cm
 }
 
-func (c *cacheManager) Get(key string) string {
-	c.RLock()
-	ret := c.data[key]
-	c.RUnlock()
+func (c *cacheManager) Get(key string) (ret string) {
+	if value, ok := c.data.Get(key); ok {
+		ret = value.(string)
+	} else {
+		ret = ""
+		log.Printf("cacheManager get key: %s failed\n", key)
+	}
 	return ret
 }
 
 func (c *cacheManager) Set(key string, value string) error {
-	c.Lock()
-	defer c.Unlock()
-	c.data[key] = value
+	c.data.Set(key, value)
 	return nil
 }
 
 // Marshal serializes cache data
 func (c *cacheManager) Marshal() ([]byte, error) {
-	c.RLock()
-	defer c.RUnlock()
-	dataBytes, err := json.Marshal(c.data)
+
+	cacheKV := make(map[string]string, 20000)
+	for _, key := range c.data.Keys() {
+		value, result := c.data.Get(key)
+
+		if result {
+			cacheKV[key] = value.(string)
+		}
+	}
+	dataBytes, err := json.Marshal(cacheKV)
 	return dataBytes, err
 }
 
@@ -46,9 +55,8 @@ func (c *cacheManager) UnMarshal(serialized io.ReadCloser) error {
 		return err
 	}
 
-	c.Lock()
-	defer c.Unlock()
-	c.data = newData
-
+	for k, v := range newData {
+		c.data.Set(k, v)
+	}
 	return nil
 }

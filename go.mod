@@ -3,6 +3,7 @@ module github.com/MoSunDay/redix
 go 1.15
 
 require (
+	github.com/MoSunDay/concurrent-map v0.0.0-20191203013645-5995e9c56ca5
 	github.com/MoSunDay/go-color v1.7.0
 	github.com/MoSunDay/go-pubsub v0.0.0-20210908150327-a5e7bad4421d
 	github.com/MoSunDay/redcon v1.2.1

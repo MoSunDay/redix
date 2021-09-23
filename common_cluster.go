@@ -6,6 +6,30 @@ import (
 	"strings"
 )
 
+func clusterSlotsInit(c Context) {
+	if SlotCache.CM.Get("0") == "" {
+		for i := 0; i <= 16383; i++ {
+			addr := SlotCache.Opts.RaftTCPAddress
+			addrSlice := strings.Split(addr, ":")
+			portStr := addrSlice[1]
+			port, err := strconv.Atoi(portStr)
+			if err != nil {
+				SlotCache.Log.Fatal("cluster slots verification failed")
+				c.WriteError("init slots failed err: " + err.Error())
+				return
+			}
+			portStr = strconv.Itoa(port + 200)
+			addr = addrSlice[0] + ":" + portStr
+			SlotCache.CM.Set(strconv.Itoa(i), addr)
+		}
+		SlotCache.Log.Println("slots init done")
+	} else {
+		c.WriteError("slots have been allocated")
+		return
+	}
+	c.WriteString("OK")
+}
+
 func clusterInfo(c Context) {
 	raftStats := SlotCache.Raft.Raft.Stats()
 
@@ -18,9 +42,13 @@ func clusterInfo(c Context) {
 
 	epoch := raftStats["term"]
 	size := len(configuration.Servers)
+	clusterStatus := "ok"
+	if SlotCache.CM.Get("0") == "" {
+		clusterStatus = "down"
+	}
 
 	c.WriteBulkString(fmt.Sprintf(""+
-		"cluster_state:ok\n"+
+		"cluster_state:%s\n"+
 		"cluster_slots_assigned:16384\n"+
 		"cluster_slots_ok:16384\n"+
 		"cluster_slots_pfail:0\n"+
@@ -31,12 +59,12 @@ func clusterInfo(c Context) {
 		"cluster_my_epoch:%s\n"+
 		"cluster_stats_messages_sent:0\n"+
 		"cluster_stats_messages_received:0\n",
-		size, size, epoch, epoch,
+		clusterStatus, size, size, epoch, epoch,
 	))
 }
 
 func clusterHelp(c Context) {
-	c.WriteString("CLUSTER [ help | NODES | SLOTS ]")
+	c.WriteString("CLUSTER [ help | NODES | SLOTS | INIT ]")
 }
 
 func clusterNodes(c Context) {
@@ -137,6 +165,7 @@ func clusterCommand(c Context) {
 		"info":  clusterInfo,
 		"nodes": clusterNodes,
 		"slots": clusterSlots,
+		"init":  clusterSlotsInit,
 		"test":  clusterTest,
 	}
 	if fn, ok := subCommand[c.args[0]]; ok {
