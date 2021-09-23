@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/MoSunDay/redix/hash"
 	"github.com/hashicorp/raft"
 )
 
@@ -35,7 +36,8 @@ func NewHttpServer(ctx *CachedContext, log *log.Logger) *HttpServer {
 	Mux.HandleFunc("/set", s.doSet)
 	Mux.HandleFunc("/get", s.doGet)
 	Mux.HandleFunc("/join", s.doJoin)
-	Mux.HandleFunc("/id", s.doGetID)
+	Mux.HandleFunc("/info", s.doInfo)
+	Mux.HandleFunc("/hash", s.doHash)
 	return s
 }
 
@@ -65,7 +67,6 @@ func (h *HttpServer) doGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", ret)
 }
 
-// doSet saves data to cache, only raft master node provides this api
 func (h *HttpServer) doSet(w http.ResponseWriter, r *http.Request) {
 	if !h.checkWritePermission() {
 		fmt.Fprint(w, "write method not allowed\n")
@@ -99,7 +100,6 @@ func (h *HttpServer) doSet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "ok\n")
 }
 
-// doJoin handles joining cluster request
 func (h *HttpServer) doJoin(w http.ResponseWriter, r *http.Request) {
 	vars := r.URL.Query()
 
@@ -118,8 +118,19 @@ func (h *HttpServer) doJoin(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "ok")
 }
 
-// doJoin handles joining cluster request
-func (h *HttpServer) doGetID(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "111\n")
-	fmt.Fprintf(w, "%+v\n", h.Ctx.Cache.Raft.Raft.GetConfiguration())
+func (h *HttpServer) doInfo(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "%+v\nlast_index: %d\n", h.Ctx.Cache.Raft.Raft.Stats(), h.Ctx.Cache.Raft.Raft.LastIndex())
+}
+
+func (h *HttpServer) doHash(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Query()
+
+	key := vars.Get("key")
+	if key == "" {
+		h.Log.Println("doHash() error, get nil key")
+		fmt.Fprint(w, "")
+		return
+	}
+
+	fmt.Fprintf(w, "key: %s, slot: %d\n", key, hash.GetSlotNumber(key))
 }

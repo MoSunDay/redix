@@ -18,7 +18,6 @@ require (
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 	github.com/sirupsen/logrus v1.8.1
 	github.com/syndtr/goleveldb v1.0.0
-	github.com/tidwall/redcon v1.4.1
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	go.etcd.io/bbolt v1.3.6
 	gopkg.in/resty.v1 v1.12.0

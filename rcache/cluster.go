@@ -54,8 +54,8 @@ func NewRaftNode(opts *options, ctx *CachedContext) (*RaftNodeInfo, error) {
 		Output:     os.Stderr,
 		TimeFormat: `2006/01/02 15:04:05`,
 	})
-	RaftConfig.SnapshotInterval = 20 * time.Second
-	RaftConfig.SnapshotThreshold = 2
+	RaftConfig.SnapshotInterval = 30 * time.Second
+	RaftConfig.SnapshotThreshold = 1
 	LeaderNotifyCh := make(chan bool, 1)
 	RaftConfig.NotifyCh = LeaderNotifyCh
 
@@ -91,13 +91,13 @@ func NewRaftNode(opts *options, ctx *CachedContext) (*RaftNodeInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	address := transport.LocalAddr()
 	if opts.Bootstrap {
 		configuration := raft.Configuration{
 			Servers: []raft.Server{
 				{
 					ID:      RaftConfig.LocalID,
-					Address: transport.LocalAddr(),
+					Address: address,
 				},
 			},
 		}

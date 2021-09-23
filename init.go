@@ -7,9 +7,12 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"os"
 	"runtime"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/MoSunDay/go-color"
@@ -20,10 +23,19 @@ import (
 
 func init() {
 	flag.Parse()
-
 	runtime.GOMAXPROCS(*flagWorkers)
 
 	*flagStorageDir = *flagStorageDir + "/" + *flagRaftNode
+
+	RaftAddrSlice := strings.Split(*flagRaftTCPAddress, ":")
+	port, err := strconv.Atoi(RaftAddrSlice[1])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	*flagRESPListenAddr = RaftAddrSlice[0] + ":" + strconv.Itoa(port+200)
+	*flagHTTPListenAddr = RaftAddrSlice[0] + ":" + strconv.Itoa(port+400)
+	*flagHttpAddress = RaftAddrSlice[0] + ":" + strconv.Itoa(port+600)
 
 	if !*flagVerbose {
 		logger := logrus.New()
@@ -53,27 +65,4 @@ func init() {
 	}
 
 	snowflakeGenerator = snowflakenode
-
-	// initDBs()
 }
-
-// // initDBs - initialize databases from the disk for faster access
-// func initDBs() {
-// 	os.MkdirAll(*flagStorageDir, 0755)
-
-// 	dirs, _ := ioutil.ReadDir(get)
-
-// 	for _, f := range dirs {
-// 		if !f.IsDir() {
-// 			continue
-// 		}
-
-// 		name := filepath.Base(f.Name())
-
-// 		_, err := selectDB(name)
-// 		if err != nil {
-// 			log.Println(color.RedString(err.Error()))
-// 			continue
-// 		}
-// 	}
-// }

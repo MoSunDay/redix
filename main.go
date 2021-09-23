@@ -18,6 +18,8 @@ func main() {
 	fmt.Printf("⇨ redix workers count: %s \n", color.GreenString(strconv.Itoa(*flagWorkers)))
 	fmt.Printf("⇨ redix resp server available at: %s \n", color.GreenString(*flagRESPListenAddr))
 	fmt.Printf("⇨ redix http server available at: %s \n", color.GreenString(*flagHTTPListenAddr))
+	fmt.Printf("⇨ raft http server available at: %s \n", color.GreenString(*flagHttpAddress))
+	fmt.Printf("⇨ raft tcp available at: %s \n", color.GreenString(*flagRaftTCPAddress))
 
 	err := make(chan error)
 
@@ -30,7 +32,7 @@ func main() {
 	})()
 
 	go (func() {
-		initRaftServer()
+		runRatfServer()
 	})()
 
 	if err := <-err; err != nil {

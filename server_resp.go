@@ -10,13 +10,13 @@ import (
 
 	"github.com/MoSunDay/go-color"
 	"github.com/MoSunDay/redcon"
+	"github.com/MoSunDay/redix/hash"
 )
 
 func initRespServer() error {
 	return redcon.ListenAndServe(
 		*flagRESPListenAddr,
 		func(conn redcon.Conn, cmd redcon.Command) {
-			// handles any panic
 			defer (func() {
 				if err := recover(); err != nil {
 					conn.WriteError(fmt.Sprintf("fatal error: %s", (err.(error)).Error()))
@@ -54,13 +54,11 @@ func initRespServer() error {
 				}, defaultPubSubAllTopic)
 			}
 
-			// internal ping-pong
 			if todo == "ping" {
 				conn.WriteString("PONG")
 				return
 			}
 
-			// close the connection
 			if todo == "quit" {
 				conn.WriteString("OK")
 				conn.Close()
@@ -73,33 +71,10 @@ func initRespServer() error {
 					continue
 				}
 
-				slot := crc16sum(args[0]) % 16384
-
-				if *flagRaftNode == "node1" {
-					if slot <= 5461 {
-					} else if slot >= 10923 {
-						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6668", slot))
-					} else {
-						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6667", slot))
-					}
-				}
-
-				if *flagRaftNode == "node2" {
-					if slot >= 5462 || slot <= 10922 {
-					} else if slot >= 10923 {
-						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6668", slot))
-					} else {
-						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6666", slot))
-					}
-				}
-
-				if *flagRaftNode == "node3" {
-					if slot >= 10923 || slot <= 16383 {
-					} else if slot <= 5461 {
-						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6666", slot))
-					} else {
-						conn.WriteError(fmt.Sprintf("MOVED %d 0.0.0.0:6667", slot))
-					}
+				slot := hash.GetSlotNumber(args[0])
+				address := SlotCache.CM.Get("0")
+				if address != SlotCache.Opts.RaftTCPAddress {
+					conn.WriteError(fmt.Sprintf("MOVED %d %s", slot, address))
 				}
 
 				fn(Context{
