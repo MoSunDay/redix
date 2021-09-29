@@ -15,6 +15,70 @@ import (
 	"github.com/go-redis/redis"
 )
 
+var searchContent = `
+<head>
+<title></title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+
+<style>
+.card {
+	margin: 30px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-body">
+  <form action="/n/search" method="get" class="form-inline">
+  <div class="form-group mx-sm-3">
+    <input name="s" class="form-control" id="url" placeholder="搜索" style="width: 600px;">
+  </div>
+  <button type="submit" class="btn btn-primary">搜索</button>
+  </form>
+  </div>
+</div>
+</body>
+</html>
+`
+
+var nameContent = `
+<html>
+<head>
+<title></title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+
+<style>
+.card {
+	margin: 30px;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-body">
+  <form action="/r" method="get">
+  <div class="form-group mx-sm-3">
+    <input type="url" name="s" class="form-control" id="url" placeholder="长连接" style="width: 600px;">
+  </div>
+  <div class="form-group mx-sm-3">
+    <input name="d" class="form-control" id="url" placeholder="短连接 ID" style="width: 600px;">
+  </div>
+  <div class="form-group mx-sm-3">
+    <button type="submit" class="btn btn-primary">提交</button>
+  </div>
+  </form>
+  </div>
+</div>
+</body>
+</html>
+`
+
 var tplContent = `
 <html>
 <head>
@@ -154,14 +218,100 @@ func eindex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func rindex(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Fprintf(w, textContent)
+	} else {
+		fmt.Println("url:", r.Form)
+	}
+}
+
+func nindex(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Fprintf(w, nameContent)
+	} else {
+		fmt.Println("url:", r.Form)
+	}
+}
+
+func hindex(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Fprintf(w, searchContent)
+	} else {
+		fmt.Println("url:", r.Form)
+	}
+}
+
 func main() {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "127.0.0.1:6379",
 		Password: "",
 		DB:       0,
 	})
+	nameRdb := redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1:6379",
+		Password: "",
+		DB:       1,
+	})
 	http.HandleFunc("/index", index)
+	http.HandleFunc("/n/search", func(w http.ResponseWriter, r *http.Request) {
+		sKeys, sOk := r.URL.Query()["s"]
+		if !sOk || len(sKeys[0]) < 1 {
+			fmt.Fprintf(w, "Url Param 's'is missing")
+			return
+		} else {
+			searchInput := sKeys[0]
+			vals, err := nameRdb.Keys(ctx, ".").Result()
+			if err != nil {
+				fmt.Fprintf(w, "The searched content was eaten by the black hole.")
+				return
+			}
+			searchResult := make([]string, 0)
+			for _, value := range vals {
+				valueSli := strings.Split(value, "/")
+				item := valueSli[1]
+				if strings.Contains(item, searchInput) {
+					searchResult = append(searchResult, value)
+				}
+			}
+			if len(searchResult) == 0 {
+				fmt.Fprintf(w, "The searched content was eaten by the black hole.")
+				return
+			} else {
+				fmt.Fprintln(w, strings.Join(searchResult, "\n"))
+			}
+		}
+	})
 	http.HandleFunc("/e", eindex)
+	http.HandleFunc("/n", nindex)
+	http.HandleFunc("/h", hindex)
+	http.HandleFunc("/r", func(w http.ResponseWriter, r *http.Request) {
+		sKeys, sOk := r.URL.Query()["s"]
+		dKeys, dOk := r.URL.Query()["d"]
+		if !sOk || !dOk || len(sKeys[0]) < 1 || len(dKeys[0]) < 1 {
+			fmt.Fprintf(w, "Url Param 's' or 'd' is missing")
+			return
+		} else {
+			host := r.Host
+			urlSource := sKeys[0]
+			shortName := dKeys[0]
+			encodeUrl := base64.StdEncoding.EncodeToString([]byte(urlSource))
+			dbKey := host + "/" + shortName
+			val, err := nameRdb.Get(ctx, dbKey).Result()
+			if val != "" && err == nil {
+				fmt.Fprintln(w, fmt.Sprintf("ID [%s] already exists", shortName))
+				return
+			} else {
+				err = nameRdb.Set(ctx, dbKey, encodeUrl, time.Hour*24*7).Err()
+				if err != nil {
+					log.Println(err)
+					fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
+					return
+				}
+				fmt.Fprintln(w, strings.Replace(shortContent, "{value}", "http://"+r.Host+"/"+shortName, 1))
+			}
+		}
+	})
 	http.HandleFunc("/t", func(w http.ResponseWriter, r *http.Request) {
 		keys, ok := r.URL.Query()["t"]
 		if !ok || len(keys[0]) < 1 {
@@ -239,10 +389,17 @@ func main() {
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		dbKey := r.Host + "/" + r.URL.Path[1:]
-		val, err := rdb.Get(ctx, dbKey).Result()
-		if val == "" || err != nil {
+		cVal, err := rdb.Get(ctx, dbKey).Result()
+		nVal, nErr := nameRdb.Get(ctx, dbKey).Result()
+		var val string
+		if (cVal == "" || err != nil) && (nVal == "" || nErr != nil) {
 			fmt.Fprintf(w, "No matching url found")
 			return
+		}
+		if cVal != "" {
+			val = cVal
+		} else {
+			val = nVal
 		}
 
 		content, err := base64.StdEncoding.DecodeString(val)
