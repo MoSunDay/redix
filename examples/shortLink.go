@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
@@ -116,6 +117,7 @@ var shortContent = `
   </body>
 </html>
 `
+var ctx = context.Background()
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -170,7 +172,7 @@ func main() {
 			fmt.Println(text)
 			encodeText := GetMD5Hash(text)
 			text = base64.StdEncoding.EncodeToString([]byte(text))
-			val, err := rdb.Get(encodeText).Result()
+			val, err := rdb.Get(ctx, encodeText).Result()
 			if val != "" && err == nil {
 				fmt.Fprintln(w, strings.Replace(shortContent, "{value}", "http://"+val, 1))
 				return
@@ -178,18 +180,18 @@ func main() {
 			host := r.Host
 			shortName := RandStringRunes(6)
 			dbKey := host + "/" + shortName
-			for val, err := rdb.Get(dbKey).Result(); val != "" && err == nil; {
+			for val, err := rdb.Get(ctx, dbKey).Result(); val != "" && err == nil; {
 				shortName := RandStringRunes(6)
 				dbKey = host + "/" + shortName
 				time.Sleep(time.Millisecond * 1)
 			}
-			err = rdb.Set(dbKey, text, time.Hour*24*7).Err()
+			err = rdb.Set(ctx, dbKey, text, time.Hour*24*7).Err()
 			if err != nil {
 				log.Println(err)
 				fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
 				return
 			}
-			err = rdb.Set(encodeText, dbKey, time.Hour*24*7).Err()
+			err = rdb.Set(ctx, encodeText, dbKey, time.Hour*24*7).Err()
 			if err != nil {
 				log.Println(err)
 				fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
@@ -206,7 +208,7 @@ func main() {
 		} else {
 			sourceURL := keys[0]
 			encodeURL := base64.StdEncoding.EncodeToString([]byte(sourceURL))
-			val, err := rdb.Get(encodeURL).Result()
+			val, err := rdb.Get(ctx, encodeURL).Result()
 			log.Println(val, err)
 			if val != "" && err == nil {
 				fmt.Fprintln(w, strings.Replace(shortContent, "{value}", "http://"+val, 1))
@@ -215,18 +217,18 @@ func main() {
 			host := r.Host
 			shortName := RandStringRunes(6)
 			dbKey := host + "/" + shortName
-			for val, err := rdb.Get(dbKey).Result(); val != "" && err == nil; {
+			for val, err := rdb.Get(ctx, dbKey).Result(); val != "" && err == nil; {
 				shortName := RandStringRunes(6)
 				dbKey = host + "/" + shortName
 				time.Sleep(time.Millisecond * 1)
 			}
-			err = rdb.Set(dbKey, encodeURL, 0).Err()
+			err = rdb.Set(ctx, dbKey, encodeURL, 0).Err()
 			if err != nil {
 				log.Println(err)
 				fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
 				return
 			}
-			err = rdb.Set(encodeURL, dbKey, 0).Err()
+			err = rdb.Set(ctx, encodeURL, dbKey, 0).Err()
 			if err != nil {
 				log.Println(err)
 				fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
@@ -237,13 +239,12 @@ func main() {
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		dbKey := r.Host + "/" + r.URL.Path[1:]
-		val, err := rdb.Get(dbKey).Result()
-		if val == "nil" || err != nil {
+		val, err := rdb.Get(ctx, dbKey).Result()
+		if val == "" || err != nil {
 			fmt.Fprintf(w, "No matching url found")
-			log.Println(err)
 			return
 		}
-		
+
 		content, err := base64.StdEncoding.DecodeString(val)
 		if err != nil {
 			fmt.Fprint(w, "content is corrupted")
