@@ -297,7 +297,12 @@ func main() {
 			shortName := dKeys[0]
 			encodeUrl := base64.StdEncoding.EncodeToString([]byte(urlSource))
 			dbKey := host + "/" + shortName
-			val, err := nameRdb.Get(ctx, dbKey).Result()
+			val, err := rdb.Get(ctx, dbKey).Result()
+			if val != "" && err == nil {
+				fmt.Fprintln(w, fmt.Sprintf("ID [%s] already exists", shortName))
+				return
+			}
+			val, err = nameRdb.Get(ctx, dbKey).Result()
 			if val != "" && err == nil {
 				fmt.Fprintln(w, fmt.Sprintf("ID [%s] already exists", shortName))
 				return
@@ -319,7 +324,6 @@ func main() {
 			return
 		} else {
 			text := keys[0]
-			fmt.Println(text)
 			encodeText := GetMD5Hash(text)
 			text = base64.StdEncoding.EncodeToString([]byte(text))
 			val, err := rdb.Get(ctx, encodeText).Result()
@@ -388,10 +392,10 @@ func main() {
 		}
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		var val string
 		dbKey := r.Host + "/" + r.URL.Path[1:]
 		cVal, err := rdb.Get(ctx, dbKey).Result()
 		nVal, nErr := nameRdb.Get(ctx, dbKey).Result()
-		var val string
 		if (cVal == "" || err != nil) && (nVal == "" || nErr != nil) {
 			fmt.Fprintf(w, "No matching url found")
 			return
@@ -408,11 +412,12 @@ func main() {
 			return
 		} else {
 			contentStr := string(content)
-			log.Println(contentStr)
-			if strings.HasPrefix(contentStr, "http") {
-				http.Redirect(w, r, contentStr, 301)
-			} else {
+			encodeText := GetMD5Hash(contentStr)
+			cVal, _ := rdb.Get(ctx, encodeText).Result()
+			if cVal != "" {
 				fmt.Fprint(w, contentStr)
+			} else {
+				http.Redirect(w, r, contentStr, 301)
 			}
 		}
 
