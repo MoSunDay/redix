@@ -105,6 +105,13 @@ var tplContent = `
   </form>
   </div>
 </div>
+<div class="card">
+<div class="list-group">
+  <a href="http://c.ss/e" class="list-group-item list-group-item-action">我想把长文本的内容变短链「点我！」</a>
+  <a href="http://c.ss/n" class="list-group-item list-group-item-action">我想给长链接取一个好记的名字「点我！」</a>
+  <a href="http://c.ss/h" class="list-group-item list-group-item-action">我想搜下已经取过的名字「点我！」</a>
+</div>
+</div>
 </body>
 </html>
 `
@@ -417,7 +424,7 @@ func main() {
 			if cVal != "" {
 				fmt.Fprint(w, contentStr)
 			} else {
-				http.Redirect(w, r, contentStr, 301)
+				http.Redirect(w, r, contentStr, 302)
 			}
 		}
 
