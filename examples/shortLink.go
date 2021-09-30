@@ -302,7 +302,7 @@ func main() {
 				fmt.Fprintln(w, fmt.Sprintf("ID [%s] already exists", shortName))
 				return
 			} else {
-				err = nameRdb.Set(ctx, dbKey, encodeUrl, time.Hour*24*7).Err()
+				err = nameRdb.Set(ctx, dbKey, encodeUrl, 0).Err()
 				if err != nil {
 					log.Println(err)
 					fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
@@ -335,13 +335,13 @@ func main() {
 				dbKey = host + "/" + shortName
 				time.Sleep(time.Millisecond * 1)
 			}
-			err = rdb.Set(ctx, dbKey, text, time.Hour*24*7).Err()
+			err = rdb.Set(ctx, dbKey, text, 1000*24*60*60*7).Err()
 			if err != nil {
 				log.Println(err)
 				fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
 				return
 			}
-			err = rdb.Set(ctx, encodeText, dbKey, time.Hour*24*7).Err()
+			err = rdb.Set(ctx, encodeText, dbKey, 1000*24*60*60*7).Err()
 			if err != nil {
 				log.Println(err)
 				fmt.Fprintf(w, "Failed to generate short chain, please contact SRE.")
